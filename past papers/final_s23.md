@@ -2,6 +2,15 @@
 
 ---
 
+| Topic                                | Question | Marks | Percentage | Key Concepts Tested                                                  |
+| ------------------------------------ | -------- | ----- | ---------- | -------------------------------------------------------------------- |
+| Environment & Dependency Management  | Q1       | 12    | 16.0%      | Virtual environments, requirements.txt, project structure, Makefile  |
+| MLOps Lifecycle & Automation         | Q2       | 9     | 12.0%      | Model retraining, containerization, monitoring, alerting             |
+| Data & Model Versioning (DVC)        | Q3       | 16    | 21.3%      | DVC pipelines, reproducibility, data tracking, model drift detection |
+| Experiment Tracking (MLflow)         | Q4       | 16    | 21.3%      | MLflow tracking, model registry, environment management, versioning  |
+| Container Orchestration (Kubernetes) | Q5       | 12    | 16.0%      | K8s YAML, deployments, services, Minikube troubleshooting            |
+| CI/CD Pipelines (Jenkins)            | Q6       | 10    | 13.3%      | Jenkins pipeline stages, Docker integration, testing automation      |
+
 ## Question 1 (12 Marks)
 
 A machine learning team is developing a deep learning model for image recognition. They aim to leverage the power of TensorFlow for building and training their models, along with other libraries for data preprocessing and visualization. The project involves multiple developers working on different aspects of the model, such as data preprocessing, model architecture, and evaluation. Build process of the project involves, linting, building and testing phases. The project has following dependencies:
@@ -170,13 +179,13 @@ I am working on the cloned copy of a Git repository. I have stored `data.csv` fi
 
 > **Solution:**
 >
-> 1.  **Versioning Data:** Version training and evaluation datasets using DVC to track changes over time and maintain a historical record.
-> 2.  **Tracking Model Performance:** Record performance metrics (accuracy, precision, etc.) in the DVC pipeline (using `metrics` field). Use `dvc metrics diff` to compare across versions.
-> 3.  **Regular Retraining:** Establish a retraining schedule/pipeline. Periodically run `dvc repro` on new data.
-> 4.  **Monitoring Predictions:** Continuously monitor predictions on new production data and compare them against ground truth to identify deviations.
-> 5.  **Triggering Alerts:** Set up automated alerts when performance metrics drop below a certain threshold.
-> 6.  **Retraining and Revalidation:** Once drift is detected, update the training data, retrain using DVC, and validate the new model.
-> 7.  **Documentation and Reproducibility:** Ensure all versions (data, code, model) are linked via Git and DVC for full auditability.
+> 1. **Versioning Data:** Version training and evaluation datasets using DVC to track changes over time and maintain a historical record.
+> 2. **Tracking Model Performance:** Record performance metrics (accuracy, precision, etc.) in the DVC pipeline (using `metrics` field). Use `dvc metrics diff` to compare across versions.
+> 3. **Regular Retraining:** Establish a retraining schedule/pipeline. Periodically run `dvc repro` on new data.
+> 4. **Monitoring Predictions:** Continuously monitor predictions on new production data and compare them against ground truth to identify deviations.
+> 5. **Triggering Alerts:** Set up automated alerts when performance metrics drop below a certain threshold.
+> 6. **Retraining and Revalidation:** Once drift is detected, update the training data, retrain using DVC, and validate the new model.
+> 7. **Documentation and Reproducibility:** Ensure all versions (data, code, model) are linked via Git and DVC for full auditability.
 
 ---
 
@@ -231,14 +240,14 @@ client.delete_experiment(EXPERIMENT_ID)
 
 > **Detailed Explanation:**
 >
-> 1.  **Imports:** Imports OS, MLflow, Pandas, and the `MlflowClient` for manual tracking control.
-> 2.  **Client Init:** Initializes the `MlflowClient` to interact with the tracking server.
-> 3.  **Get ID:** Finds the `experiment_id` for the experiment named "mlflow-demo".
-> 4.  **Search Runs:** Searches for all runs in that experiment, sorting them by `accuracy` in descending order (highest first).
-> 5.  **Best Run:** Identifies the best run (`RI[0]`) and retrieves its `artifact_uri` (location where model files are stored).
-> 6.  **Load Model:** Uses `mlflow.sklearn.load_model` to load the trained classifier into memory.
-> 7.  **Cleanup Loop:** Iterates through all retrieved runs and deletes them using their `run_id`.
-> 8.  **Delete Experiment:** Removes the entire experiment metadata from the tracking server.
+> 1. **Imports:** Imports OS, MLflow, Pandas, and the `MlflowClient` for manual tracking control.
+> 2. **Client Init:** Initializes the `MlflowClient` to interact with the tracking server.
+> 3. **Get ID:** Finds the `experiment_id` for the experiment named "mlflow-demo".
+> 4. **Search Runs:** Searches for all runs in that experiment, sorting them by `accuracy` in descending order (highest first).
+> 5. **Best Run:** Identifies the best run (`RI[0]`) and retrieves its `artifact_uri` (location where model files are stored).
+> 6. **Load Model:** Uses `mlflow.sklearn.load_model` to load the trained classifier into memory.
+> 7. **Cleanup Loop:** Iterates through all retrieved runs and deletes them using their `run_id`.
+> 8. **Delete Experiment:** Removes the entire experiment metadata from the tracking server.
 
 ---
 
@@ -291,14 +300,14 @@ Consider you have locally implemented Kubernetes using Minikube. You want to dep
 
 > **Solution:**
 >
-> 1.  **Agent:** Runs on a specific Jenkins node labeled 'your-jenkins-agent-label'.
-> 2.  **Environment:** Sets a global variable `PYTHON_VERSION`.
-> 3.  **Checkout:** Pulls the source code from the Git repository.
-> 4.  **SetupEnvironment:** Creates a clean Python virtual environment and upgrades `pip`.
-> 5.  **InstallDependencies:** Installs required libraries from `requirements.txt`.
-> 6.  **RunTests:** Executes unit tests using `pytest`. If tests fail, the pipeline stops.
-> 7.  **BuildDockerImage:** Builds a Docker image using the current build number as a tag.
-> 8.  **PushDockerImage:** Logs into Docker Hub and pushes the newly built image.
+> 1. **Agent:** Runs on a specific Jenkins node labeled 'your-jenkins-agent-label'.
+> 2. **Environment:** Sets a global variable `PYTHON_VERSION`.
+> 3. **Checkout:** Pulls the source code from the Git repository.
+> 4. **SetupEnvironment:** Creates a clean Python virtual environment and upgrades `pip`.
+> 5. **InstallDependencies:** Installs required libraries from `requirements.txt`.
+> 6. **RunTests:** Executes unit tests using `pytest`. If tests fail, the pipeline stops.
+> 7. **BuildDockerImage:** Builds a Docker image using the current build number as a tag.
+> 8. **PushDockerImage:** Logs into Docker Hub and pushes the newly built image.
 
 ### (b) (4 Marks) Rewrite the `PushDockerImage` stage by adding a check for the existence of the Docker Image before pushing.
 

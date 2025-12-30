@@ -1,5 +1,4 @@
 # 🎯 Complete MLOps Final Exam Syllabus
-
 ---
 
 ## 🛠️ S1: Foundational DevOps & Tools
