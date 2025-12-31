@@ -1,0 +1,699 @@
+\documentclass[8pt, a4paper, potrait]{extarticle}
+
+% --- Page Layout ---
+\usepackage[left=0.3cm,right=0.2cm,top=0.3cm,bottom=0.3cm]{geometry}
+\usepackage{multicol}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+% --- Typography & Spacing ---
+\usepackage{microtype}
+\usepackage{anyfontsize}
+\usepackage[T1]{fontenc}
+\usepackage{helvet} % Use Helvetica for a cleaner look
+\renewcommand{\familydefault}{\sfdefault}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\columnsep}{0.2cm}
+
+% --- Colors & Lists ---
+\usepackage{xcolor}
+\definecolor{brandblue}{HTML}{0056b3}
+\definecolor{branddark}{HTML}{212529}
+\definecolor{brandgrey}{HTML}{6c757d}
+\definecolor{brandgreen}{HTML}{28a745}
+\definecolor{codebackground}{HTML}{f8f9fa}
+
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=1.2em,labelsep=2pt}
+
+% --- Math & Titles ---
+\usepackage{amsmath}
+\usepackage{titlesec}
+
+% --- Code Listings ---
+\usepackage{listings}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codeblue}{rgb}{0.0,0.3,0.7}
+\definecolor{codepurple}{rgb}{0.5,0,0.5}
+\definecolor{codeorange}{rgb}{0.8,0.4,0}
+
+\lstdefinelanguage{promql}{
+  keywords={rate, sum, avg, count, min, max, stddev, stdvar, bottomk, topk, quantile, sum_over_time, avg_over_time, count_over_time, min_over_time, max_over_time, stddev_over_time, stdvar_over_time, quantile_over_time, histogram_quantile},
+  sensitive=true,
+  morecomment=[l]{\#},
+  morestring=[b]",
+  morestring=[b]'
+}
+
+\lstset{
+  backgroundcolor=\color{codebackground},
+  basicstyle=\ttfamily\fontsize{5}{5.5}\selectfont,
+  keywordstyle=\color{codeblue}\bfseries,
+  commentstyle=\color{codegreen},
+  stringstyle=\color{codepurple},
+  identifierstyle=\color{branddark},
+  breaklines=true,
+  tabsize=2,
+  frame=none, 
+  aboveskip=1pt,
+  belowskip=1pt,
+  showstringspaces=false,
+  xleftmargin=3pt,
+  xrightmargin=3pt
+}
+
+% --- Force Global 5pt Font ---
+\newcommand{\forcefivept}{\fontsize{5}{5.5}\selectfont}
+\renewcommand{\tiny}{\forcefivept}
+\renewcommand{\scriptsize}{\forcefivept}
+\renewcommand{\footnotesize}{\forcefivept}
+\renewcommand{\small}{\forcefivept}
+\renewcommand{\normalsize}{\forcefivept}
+\renewcommand{\large}{\forcefivept}
+\renewcommand{\Large}{\forcefivept}
+\renewcommand{\LARGE}{\forcefivept}
+\renewcommand{\huge}{\forcefivept}
+\renewcommand{\Huge}{\forcefivept}
+
+% --- Styling Components ---
+\newtcolorbox{mybox}[2][]{
+  colback=white,
+  colframe=brandblue,
+  fonttitle=\bfseries\forcefivept,
+  title=#2,
+  boxrule=0.5pt,
+  arc=1pt,
+  left=1pt,
+  right=1pt,
+  top=1pt,
+  bottom=1pt,
+  boxsep=1pt,
+  toptitle=0.5pt,
+  bottomtitle=0.5pt,
+  #1
+}
+
+\newcommand{\compactsection}[1]{%
+  \vspace{1pt}
+  \begin{tcolorbox}[
+    colback=brandblue!5,
+    colframe=brandblue!20,
+    boxrule=0.2pt,
+    arc=0.5pt,
+    left=2pt,
+    right=2pt,
+    top=1pt,
+    bottom=1pt,
+    boxsep=1pt
+  ]
+  \textbf{\forcefivept #1}
+  \end{tcolorbox}
+  \vspace{0.5pt}
+}
+
+\newcommand{\topicsection}[1]{%
+  \vspace{2pt}
+  \begin{tcolorbox}[
+    colback=branddark,
+    colframe=branddark,
+    arc=0pt,
+    outer arc=0pt,
+    left=2pt,
+    right=2pt,
+    top=2pt,
+    bottom=2pt,
+    boxsep=0pt,
+    fontupper=\color{white}\bfseries\forcefivept,
+    center
+  ]
+  #1
+  \end{tcolorbox}
+  \vspace{1pt}
+}
+
+% --- Subsubsection Styling ---
+\titleformat{\subsubsection}
+  {\color{brandblue}\bfseries\forcefivept}
+  {}{0em}
+  {}
+\titlespacing*{\subsubsection}
+  {0pt}{3pt}{1pt}
+
+% =========================
+\begin{document}
+\forcefivept
+
+\begin{multicols*}{2}
+
+\topicsection{MLOps COMPLETE CHEAT SHEET}
+
+\compactsection{Foundational DevOps \& Tools}
+\subsubsection*{Version Control \& Collaboration}
+
+\textbf{Git Commands:}
+\begin{lstlisting}[language=bash]
+git init                    
+git add <file>             
+git commit -m "message"    
+git push/pull origin <branch>   
+git branch <name>          
+git merge <branch>
+git checkout commit_id
+\end{lstlisting}
+
+\textbf{GitHub Actions:}
+\begin{itemize}
+    \item \textbf{Workflow File:} \texttt{.github/workflows/main.yml}
+    \item \textbf{Triggers:} \texttt{on: [push, pull\_request]}, \texttt{on: workflow\_dispatch}
+    \item \textbf{Secrets:} \texttt{\$\{\{ secrets.SECRET\_NAME \}\}}
+    \item \textbf{Basic Structure:}
+\end{itemize}
+\begin{lstlisting}[language=yaml]
+name: CI/CD Pipeline
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: pytest
+\end{lstlisting}
+
+\subsubsection*{Development \& Automation}
+
+\textbf{Makefile:}
+\begin{lstlisting}[language=make]
+.PHONY: test lint install
+install:
+    pip install -r requirements.txt
+lint:
+    flake8 *.py
+test:
+    pytest tests/
+\end{lstlisting}
+
+\textbf{Linting \& Testing:}
+\begin{itemize}
+    \item \texttt{flake8 .} - Check code quality
+    \item \texttt{pytest tests/} - Run unit tests
+    \item \texttt{pytest -v} - Verbose output
+\end{itemize}
+
+\textbf{Flask REST API:}
+\begin{lstlisting}[language=python]
+from flask import Flask, jsonify
+app = Flask(__name__)
+@app.route('/predict', methods=['POST'])
+def predict():
+    return jsonify({'result': 'value'})
+\end{lstlisting}
+
+\subsubsection*{Docker}
+
+\textbf{Dockerfile Basics:}
+\begin{lstlisting}[language=docker]
+FROM python:3.9-slim
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "app.py"]
+\end{lstlisting}
+
+\textbf{Docker Commands:}
+\begin{lstlisting}[language=bash]
+docker build -t image:tag .        # Build image
+docker run -p 5000:5000 image:tag  # Run container
+docker push repo/image:tag         # Push to registry
+docker ps                          # List containers
+docker logs <container-id>         # View logs
+\end{lstlisting}
+
+\textbf{Docker Compose:}
+\begin{lstlisting}[language=yaml]
+version: '3.8'
+services:
+  flask-app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=mongodb
+    networks:
+      - app-network
+    depends_on:
+      - mongodb
+  
+  mongodb:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+
+networks:
+  app-network:
+    driver: bridge
+\end{lstlisting}
+
+\textbf{Commands:}
+\begin{lstlisting}[language=bash]
+docker-compose up -d        # Start services
+docker-compose down         # Stop services
+docker-compose logs -f      # View logs
+\end{lstlisting}
+
+\subsubsection*{Jenkins CI/CD}
+
+\textbf{Pipeline Structure:}
+\begin{lstlisting}[language=groovy]
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Lint & Test') {
+            steps {
+                sh 'flake8 .'
+                sh 'pytest'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'docker build -t app:${BUILD_NUMBER} .'
+            }
+        }
+        stage('Push') {
+            steps {
+                withCredentials([usernamePassword(...)]) {
+                    sh 'docker push app:${BUILD_NUMBER}'
+                }
+            }
+        }
+        stage('Deploy') {
+            steps { sh './deploy.sh' }
+        }
+    }
+}
+\end{lstlisting}
+
+\compactsection{Kubernetes, MLOps \& Experiment Tracking}
+\subsubsection*{Kubernetes Architecture}
+control plane controls -> node which contains(kublet + pods) 
+\textbf{Control Plane Components:}
+\begin{itemize}
+    \item \textbf{API Server:} Frontend for K8s control plane
+    \item \textbf{Scheduler:} Assigns pods to nodes
+    \item \textbf{Controller Manager:} Runs controller processes
+    \item \textbf{etcd:} Key-value store for cluster state
+\end{itemize}
+
+\textbf{Worker Node Components:}
+\begin{itemize}
+    \item \textbf{Kubelet:} Ensures containers are running in pods
+    \item \textbf{Kube-proxy:} Network proxy maintaining network rules
+    \item \textbf{Pods:} Smallest deployable units
+\end{itemize}
+
+\subsubsection*{Core K8s Objects}
+
+\textbf{Deployment:}
+\begin{lstlisting}[language=yaml]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: app
+        image: myapp:latest
+\end{lstlisting}
+
+\textbf{Service:}
+\begin{lstlisting}[language=yaml]
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: myapp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
+  type: LoadBalancer
+\end{lstlisting}
+
+\textbf{ConfigMap:}
+\begin{lstlisting}[language=yaml]
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DATABASE_URL: "mongodb://db:27017"
+\end{lstlisting}
+
+\textbf{Secret:}
+\begin{lstlisting}[language=yaml]
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+type: Opaque
+data:
+  password: <base64-encoded>
+\end{lstlisting}
+
+\textbf{Ingress:}
+\begin{lstlisting}[language=yaml]
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+spec:
+  rules:
+  - host: myapp.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-service
+            port:
+              number: 80
+\end{lstlisting}
+
+\textbf{kubectl Commands:}
+\begin{lstlisting}[language=bash]
+kubectl apply -f config.yaml      # Apply configuration
+kubectl get pods                  # List pods
+kubectl get services              # List services
+kubectl describe pod <name>       # Pod details
+kubectl logs <pod-name>           # View logs
+kubectl delete pod <name>         # Delete pod
+kubectl scale deployment <name> --replicas=5
+\end{lstlisting}
+
+\subsubsection*{MLOps Fundamentals}
+
+\textbf{ML Lifecycle:}
+Data $\rightarrow$ Pre-processing $\rightarrow$ Training $\rightarrow$ Evaluation $\rightarrow$ Deployment
+
+\textbf{Maturity Levels:}
+\begin{itemize}
+    \item \textbf{Level 0:} Manual, script-based, no versioning
+    \item \textbf{Level 1:} Automated pipelines, model registry, metadata stores
+    \item \textbf{Level 2:} Full CI/CD with auto-retraining on drift detection
+\end{itemize}
+
+\textbf{DevOps vs MLOps:}
+\begin{itemize}
+    \item DevOps: System monitoring, uptime, performance
+    \item MLOps: Model performance, data drift, concept drift
+\end{itemize}
+
+\subsubsection*{Data Version Control (DVC)}
+
+\textbf{Setup \& Commands:}
+\begin{lstlisting}[language=bash]
+dvc init                           # Initialize DVC
+dvc add data/dataset.csv           # Track data file
+git add data/dataset.csv.dvc .gitignore
+dvc remote add -d storage s3://mybucket
+dvc push                           # Push to remote storage
+dvc pull                           # Pull from remote storage
+dvc checkout                       # Restore tracked files
+\end{lstlisting}
+
+\textbf{Pipeline (dvc.yaml):}
+\begin{lstlisting}[language=yaml]
+stages:
+  preprocess:
+    cmd: python preprocess.py
+    deps:
+    - data/raw.csv
+    outs:
+    - data/processed.csv
+  
+  train:
+    cmd: python train.py
+    deps:
+    - data/processed.csv
+    - train.py
+    params:
+    - train.learning_rate
+    - train.epochs
+    outs:
+    - model.pkl
+    metrics:
+    - metrics.json:
+        cache: false
+\end{lstlisting}
+
+\textbf{Pipeline Commands:}
+\begin{lstlisting}[language=bash]
+dvc repro                  # Reproduce pipeline
+dvc dag                    # Show pipeline DAG
+dvc metrics show           # Show metrics
+dvc params diff            # Compare parameters
+\end{lstlisting}
+
+\subsubsection*{MLflow}
+
+\textbf{Tracking:}
+\begin{lstlisting}[language=python]
+import mlflow
+
+mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_experiment("my-experiment")
+
+with mlflow.start_run():
+    mlflow.log_param("learning_rate", 0.01)
+    mlflow.log_metric("accuracy", 0.95)
+    mlflow.log_artifact("model.pkl")
+    mlflow.sklearn.log_model(model, "model")
+\end{lstlisting}
+
+\textbf{Auto Logging:}
+\begin{lstlisting}[language=python]
+mlflow.autolog()  # Automatically logs params, metrics, models
+\end{lstlisting}
+
+\textbf{Model Registry:}
+\begin{lstlisting}[language=python]
+# Register model
+mlflow.register_model("runs:/<run-id>/model", "MyModel")
+
+# Transition model stage
+client = mlflow.tracking.MlflowClient()
+client.transition_model_version_stage(
+    name="MyModel",
+    version=1,
+    stage="Production"
+)
+\end{lstlisting}
+
+\textbf{Stages:} None $\rightarrow$ Staging $\rightarrow$ Production $\rightarrow$ Archived
+
+\textbf{MLproject File:}
+\begin{lstlisting}[language=yaml]
+name: My Project
+conda_env: conda.yaml
+entry_points:
+  main:
+    parameters:
+      learning_rate: {type: float, default: 0.01}
+    command: "python train.py {learning_rate}"
+\end{lstlisting}
+
+\textbf{Commands:}
+\begin{lstlisting}[language=bash]
+mlflow ui                          # Start UI server
+mlflow run . -P learning_rate=0.01 # Run project
+mlflow models serve -m models:/MyModel/Production
+\end{lstlisting}
+
+\columnbreak
+
+\compactsection{Monitoring \& Workflow Management}
+\subsubsection*{Apache Airflow}
+
+\textbf{DAG Structure:}
+\begin{lstlisting}[language=python]
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+def task_function():
+    print("Executing task")
+
+with DAG(
+    'my_dag',
+    start_date=datetime(2024, 1, 1),
+    schedule_interval='@daily',
+    catchup=False
+) as dag:
+    
+    task1 = PythonOperator(
+        task_id='task_1',
+        python_callable=task_function
+    )
+    
+    task2 = PythonOperator(
+        task_id='task_2',
+        python_callable=task_function
+    )
+    
+    task1 >> task2  # Set dependency
+\end{lstlisting}
+
+\textbf{Key Concepts:}
+\begin{itemize}
+    \item \textbf{DAG:} Directed Acyclic Graph (no cycles)
+    \item \textbf{Operators:} PythonOperator, BashOperator, etc.
+    \item \textbf{Schedule:} \texttt{@daily}, \texttt{@hourly}, cron expressions
+    \item \textbf{Dependencies:} \texttt{task1 >> task2} or \texttt{task1.set\_downstream(task2)}
+\end{itemize}
+
+\textbf{Commands:}
+\begin{lstlisting}[language=bash]
+airflow db init                    # Initialize database
+airflow webserver                  # Start web UI
+airflow scheduler                  # Start scheduler
+airflow dags list                  # List DAGs
+airflow tasks test <dag> <task> <date>
+\end{lstlisting}
+
+\subsubsection*{Prometheus}
+
+\textbf{Architecture:}
+\begin{itemize}
+    \item Time-series database for metrics
+    \item Pull-based model (scrapes targets)
+    \item PromQL query language
+\end{itemize}
+
+\textbf{prometheus.yml:}
+\begin{lstlisting}[language=yaml]
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'my-app'
+    static_configs:
+      - targets: ['localhost:8000']
+\end{lstlisting}
+
+\textbf{Common Metrics:}
+\begin{itemize}
+    \item Counter: Monotonically increasing (requests\_total)
+    \item Gauge: Can go up/down (memory\_usage)
+    \item Histogram: Distribution of values (request\_duration)
+    \item Summary: Similar to histogram with percentiles
+\end{itemize}
+
+\textbf{Python Client:}
+\begin{lstlisting}[language=python]
+from prometheus_client import Counter, Gauge, Histogram
+from prometheus_client import start_http_server
+
+requests = Counter('requests_total', 'Total requests')
+memory = Gauge('memory_usage_bytes', 'Memory usage')
+latency = Histogram('request_duration_seconds', 'Request latency')
+
+requests.inc()  # Increment counter
+memory.set(1024)  # Set gauge value
+latency.observe(0.5)  # Record observation
+\end{lstlisting}
+
+\textbf{PromQL Queries:}
+\begin{lstlisting}[language=promql]
+rate(requests_total[5m])           # Request rate over 5min
+avg(memory_usage_bytes)            # Average memory
+histogram_quantile(0.95, latency)  # 95th percentile
+\end{lstlisting}
+
+\subsubsection*{ML Drift Detection}
+
+\textbf{Data Drift:}
+\begin{itemize}
+    \item Definition: Changes in input data distribution (P(X))
+    \item Example: Training on summer data, predicting in winter
+    \item Detection: Statistical tests (KS test, Chi-square), Population Stability Index (PSI)
+\end{itemize}
+
+\textbf{Concept Drift:}
+\begin{itemize}
+    \item Definition: Changes in relationship between input and output (P(Y|X))
+    \item Example: Customer behavior changes over time
+    \item Detection: Monitor model performance metrics over time
+\end{itemize}
+
+\textbf{Detection Strategies:}
+\begin{lstlisting}[language=python]
+# Statistical test example
+from scipy.stats import ks_2samp
+
+statistic, p_value = ks_2samp(train_data, production_data)
+if p_value < 0.05:
+    print("Drift detected!")
+
+# Model performance monitoring
+if current_accuracy < threshold:
+    trigger_retraining()
+\end{lstlisting}
+
+\textbf{Mitigation:}
+\begin{itemize}
+    \item Regular model retraining
+    \item Ensemble methods
+    \item Online learning
+    \item A/B testing new models
+\end{itemize}
+
+\topicsection{QUICK REFERENCE COMMANDS}
+
+\textbf{Git:} \texttt{init, add, commit, push, pull, branch, merge} \\
+\textbf{Docker:} \texttt{build, run, push, ps, logs, exec} \\
+\textbf{Docker Compose:} \texttt{up, down, logs, ps} \\
+\textbf{kubectl:} \texttt{apply, get, describe, logs, delete, scale} \\
+\textbf{DVC:} \texttt{init, add, push, pull, repro, metrics show} \\
+\textbf{MLflow:} \texttt{ui, run, models serve} \\
+\textbf{Airflow:} \texttt{db init, webserver, scheduler, dags list}
+
+\topicsection{KEY CONCEPTS SUMMARY}
+
+\begin{itemize}
+    \item \textbf{CI/CD:} Automated testing and deployment pipeline
+    \item \textbf{Containerization:} Docker for consistent environments
+    \item \textbf{Orchestration:} Kubernetes for scaling and managing containers
+    \item \textbf{Version Control:} Git for code, DVC for data/models
+    \item \textbf{Experiment Tracking:} MLflow for reproducibility
+    \item \textbf{Workflow Management:} Airflow for complex pipelines
+    \item \textbf{Monitoring:} Prometheus for metrics, drift detection for model health
+    \item \textbf{MLOps Maturity:} Progress from manual (L0) to fully automated (L2)
+\end{itemize}
+
+\end{multicols*}
+\end{document}

@@ -281,8 +281,7 @@ Consider you have locally implemented Kubernetes using Minikube. You want to dep
 
 ### (b) (4 Marks) After deployment, the Flask application was still not accessible on port 8080. Why did this happen and how can it be fixed?
 
-> **Solution:**
-> **Reason:** In a local **Minikube** environment, the `LoadBalancer` type does not automatically get an external IP address like it would on a cloud provider (AWS/GCP). The service remains in a `<pending>` state for the External-IP.
+> **Solution:** > **Reason:** In a local **Minikube** environment, the `LoadBalancer` type does not automatically get an external IP address like it would on a cloud provider (AWS/GCP). The service remains in a `<pending>` state for the External-IP.
 >
 > **Fix:** You need to use the Minikube tunnel or the service command to expose it. Run:
 >
