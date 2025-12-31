@@ -480,48 +480,73 @@ Data $\rightarrow$ Pre-processing $\rightarrow$ Training $\rightarrow$ Evaluatio
 
 \textbf{Setup \& Commands:}
 \begin{lstlisting}[language=bash]
-dvc init                           # Initialize DVC
-dvc add data/dataset.csv           # Track data file
+dvc init                           
+dvc add data/dataset.csv           # Track data file , 
 git add data/dataset.csv.dvc .gitignore
 dvc remote add -d storage s3://mybucket
-dvc push                           # Push to remote storage
-dvc pull                           # Pull from remote storage
-dvc checkout                       # Restore tracked files
+dvc push                          
+dvc pull                          
+dvc checkout                      
 \end{lstlisting}
+If you forget to push the updated \verb|data.csv| to the DVC remote, a partner pulling the repo will get a \textbf{hash mismatch error} when running \verb|dvc pull|, because the \verb|.dvc| file expects the new data but the remote still has the old version. 
 
+\textbf{project scalfolding:}
+\begin{lstlisting}[language=text]
+Project_Name/
+|-- .dvc/             # Internal DVC configuration and cache
+|-- .dvcignore        # Files to be ignored by DVC
+|-- .gitignore 
+|-- Makefile       
+|-- dvc.yaml          # DVC pipeline definition (stages, deps, outs)
+|-- get_data.py      
+|-- metrics.json      # File where performance metrics are stored
+|-- process_data.py   
+|-- requirements.txt  
+|-- train.py         
+\end{lstlisting}
 \textbf{Pipeline (dvc.yaml):}
+used to auto retrain model if new data comes in data file
 \begin{lstlisting}[language=yaml]
 stages:
-  preprocess:
-    cmd: python preprocess.py
+  get_data:
+    cmd: python get_data.py
     deps:
-    - data/raw.csv
+      - get_data.py
     outs:
-    - data/processed.csv
-  
+      - data_raw.csv
+  process_data:
+    cmd: python process_data.py
+    deps:
+      - data_raw.csv
+      - process_data.py
+    outs:
+      - data_processed.csv
   train:
     cmd: python train.py
     deps:
-    - data/processed.csv
-    - train.py
-    params:
-    - train.learning_rate
-    - train.epochs
+      - train.py
+      - data_processed.csv
     outs:
-    - model.pkl
+      - by_region.png
     metrics:
-    - metrics.json:
-        cache: false
+      - metrics.json:
+          cache: false
+
 \end{lstlisting}
 
 \textbf{Pipeline Commands:}
 \begin{lstlisting}[language=bash]
-dvc repro                  # Reproduce pipeline
+dvc repro                  # rerun pipeline
 dvc dag                    # Show pipeline DAG
 dvc metrics show           # Show metrics
 dvc params diff            # Compare parameters
 \end{lstlisting}
-
+\textbf{github actions with dvc Commands:}
+\begin{lstlisting}[language=bash]
+1- run dvc repro
+2-add updated files
+3- commit and push
+\end{lstlisting}
 \subsubsection*{MLflow Components}
 \begin{itemize}
     \item \textbf{Tracking:} Log parameters, code versions, metrics, and artifacts.
@@ -595,8 +620,6 @@ mlflow ui                          # Start UI server
 mlflow run . -P learning_rate=0.01 # Run project
 mlflow models serve -m models:/MyModel/Production
 \end{lstlisting}
-
-\columnbreak
 
 \compactsection{Monitoring \& Workflow Management}
 \subsubsection*{Apache Airflow}
