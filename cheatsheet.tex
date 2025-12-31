@@ -522,7 +522,15 @@ dvc metrics show           # Show metrics
 dvc params diff            # Compare parameters
 \end{lstlisting}
 
-\subsubsection*{MLflow}
+\subsubsection*{MLflow Components}
+\begin{itemize}
+    \item \textbf{Tracking:} Log parameters, code versions, metrics, and artifacts.
+    \item \textbf{Projects:} Packaging ML code in a reusable, reproducible form.
+    \item \textbf{Models:} Standard format for packaging models for deployment.
+    \item \textbf{Registry:} Centralized model store for versioning and staging.
+\end{itemize}
+
+\subsubsection*{MLflow Tracking}
 
 \textbf{Tracking:}
 \begin{lstlisting}[language=python]
@@ -593,25 +601,29 @@ mlflow models serve -m models:/MyModel/Production
 \compactsection{Monitoring \& Workflow Management}
 \subsubsection*{Apache Airflow}
 
-\textbf{TaskFlow API (Modern):}
+\textbf{TaskGroup \& Dependency Example:}
 \begin{lstlisting}[language=python]
-from airflow.decorators import dag, task
+from airflow import DAG
+from airflow.utils.task_group import TaskGroup
+from airflow.operators.python import PythonOperator
 from datetime import datetime
 
-@dag(start_date=datetime(2024, 1, 1), schedule='@daily', catchup=False)
-def my_taskflow_dag():
-    @task
-    def extract():
-        return {"data": 123}
+# 1. Instantiation
+with DAG('my_dag', start_date=datetime(2024,1,1), schedule='@daily') as dag:
+    start = PythonOperator(task_id='start', python_callable=run_start)
 
-    @task
-    def transform(data):
-        return data["data"] * 2
+    # 2. Task Group
+    with TaskGroup("group1") as tg:
+        t1 = PythonOperator(task_id='t1', python_callable=run_t1)
+        t2 = PythonOperator(task_id='t2', python_callable=run_t2)
+        t1 >> t2
 
-    transform(extract()) # Dependencies set via call
+    end = PythonOperator(task_id='end', python_callable=run_end)
 
-my_taskflow_dag()
+    # 3. Dependency at end
+    start >> tg >> end
 \end{lstlisting}
+
 
 \textbf{Key Concepts:}
 \begin{itemize}
