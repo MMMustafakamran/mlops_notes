@@ -761,30 +761,52 @@ histogram_quantile(0.95, latency)  # 95th percentile
 
 \subsubsection*{ML Drift Detection}
 
-\textbf{Data Drift:}
+\subsection{P(X)— \textbf{Input / Feature Distribution}}
+ The probability distribution of your input features X.
+ 
+\subsection{P(Y∣X)— \textbf{Conditional / Concept Distribution}}
+ The probability of the output Y given inputs X.
+ 
+\textbf{Data Drift (Covariate Shift):} 
 \begin{itemize}
-    \item Definition: Changes in input data distribution (P(X))
-    \item Example: Training on summer data, predicting in winter
-    \item Detection: Statistical tests (KS test, Chi-square), Population Stability Index (PSI)
+    \item \textbf{Math:} distribution of input variable ($P(X)$) changes while $P(Y|X)$ stays same.
+    \item \textbf{Detail:} Distribution of input data shifts. 
+    \item \textbf{Example:} A model trained on summer weather predicts poorly in winter.
+    \item \textbf{Detection:} PSI (Population Stability Index), KL Divergence, KS Test, Chi-square.
 \end{itemize}
 
-\textbf{Concept Drift:}
+\textbf{Concept Drift:} 
 \begin{itemize}
-    \item Definition: Changes in relationship between input and output (P(Y|X))
-    \item Example: Customer behavior changes over time
-    \item Detection: Monitor model performance metrics over time
+    \item \textbf{Math:} $P(Y|X)$ changes (the "concept" mapping shifts).
+    \item \textbf{Detail:} The relationship between input and target changes.
+    \item \textbf{Example:} User spending habits change due to inflation or a pandemic.
+    \item \textbf{Detection:} Monitoring model performance (F1-score, MAE) over time; Page-Hinkley test.
+\end{itemize}
+
+\textbf{Label(output) Drift (Prior Shift):}
+\begin{itemize}
+    \item \textbf{Math:} $P(Y)$ changes while $P(X|Y)$ remains same.
+    \item \textbf{Detail:} The target variable distribution shifts.
+    \item \textbf{Example:} A sudden increase in the percentage of fraudulent transactions across the board.
+    \item \textbf{Detection:} Monitoring label frequency in production vs training.
+\end{itemize}
+
+\textbf{Feature(input) Drift:}
+\begin{itemize}
+    \item \textbf{Detail:} Shift in a \textit{specific} feature's distribution.
+    \item \textbf{Example:} A temperature sensor starts degrading, causing its mean reading to drift up 2 degrees.
+    \item \textbf{Detection:} Monitoring individual feature statistics (mean, variance, null rates).
 \end{itemize}
 
 \textbf{Detection Strategies:}
 \begin{lstlisting}[language=python]
-# Statistical test example
+#Features(input) / data drift detection
 from scipy.stats import ks_2samp
-
 statistic, p_value = ks_2samp(train_data, production_data)
 if p_value < 0.05:
     print("Drift detected!")
 
-# Model performance monitoring
+#label(output) /concept detection
 if current_accuracy < threshold:
     trigger_retraining()
 \end{lstlisting}
@@ -792,9 +814,9 @@ if current_accuracy < threshold:
 \textbf{Mitigation:}
 \begin{itemize}
     \item Regular model retraining
-    \item Ensemble methods
-    \item Online learning
-    \item A/B testing new models
+    \item Combine multiple models (if one fails due to drift other work)
+    \item Online learning(continous model learning on new data)
+    \item Monitoring dashboards for metrics & feature distributions
 \end{itemize}
 
 \topicsection{QUICK REFERENCE COMMANDS}
