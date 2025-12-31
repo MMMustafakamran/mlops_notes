@@ -624,6 +624,36 @@ with DAG('my_dag', start_date=datetime(2024,1,1), schedule='@daily') as dag:
     start >> tg >> end
 \end{lstlisting}
 
+\textbf{TaskFlow API (Modern Decorators):}
+\begin{lstlisting}[language=python]
+from airflow.decorators import dag, task, task_group
+from datetime import datetime
+
+# 1. Instantiation (@dag)
+@dag(start_date=datetime(2024,1,1), schedule='@daily', catchup=False)
+def my_workflow():
+    # 2. Tasks (@task)
+    @task
+    def get_data(): return 10
+    
+    # 3. Task Group (@task_group)
+    @task_group
+    def process(value):
+        @task
+        def add_one(v): return v + 1
+        return add_one(value)
+
+    @task
+    def save(v): print(v)
+
+    # 4. Dependencies (via calls)
+    raw = get_data()
+    proc = process(raw)
+    save(proc)
+
+my_workflow() # Register DAG
+\end{lstlisting}
+
 
 \textbf{Key Concepts:}
 \begin{itemize}
