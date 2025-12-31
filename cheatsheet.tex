@@ -153,6 +153,18 @@
 \compactsection{Foundational DevOps \& Tools}
 \subsubsection*{Version Control \& Collaboration}
 
+\subsubsection*{Env \& Project Structure}
+\textbf{Virtual Environments:}
+\begin{lstlisting}[language=bash]
+python -m venv venv         # Create venv
+source venv/bin/activate    # Activate (Linux)
+venv\Scripts\activate       # Activate (Windows)
+pip install requirements.txt
+pip freeze > requirements.txt # Save dependencies
+\end{lstlisting}
+
+\textbf{Scaffolding:} \texttt{main.py, requirements.txt, Makefile, README.md, .gitignore}
+
 \textbf{Git Commands:}
 \begin{lstlisting}[language=bash]
 git init                    
@@ -161,7 +173,7 @@ git commit -m "message"
 git push/pull origin <branch>   
 git branch <name>          
 git merge <branch>
-git checkout commit_id
+git checkout <commit_id> # Revert/Switch
 \end{lstlisting}
 
 \textbf{GitHub Actions:}
@@ -172,20 +184,36 @@ git checkout commit_id
     \item \textbf{Basic Structure:}
 \end{itemize}
 \begin{lstlisting}[language=yaml]
-name: CI/CD Pipeline
-on: [push]
+on:
+  push:
+    branches: [main] # Trigger on main push
+  pull_request:
+    types: [opened, synchronize] # PR opened/updated
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix: # Parallel OS builds
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2
-      - name: Run tests
-        run: pytest
+      - run: pytest
+  docker: # Second Job
+    needs: test # Sequential execution
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Hub
+        run: docker login -u ${{ secrets.USER }} -p ${{ secrets.PASS }}
+      - run: docker build -t user/app:latest .
+      - run: docker push user/app:latest
 \end{lstlisting}
 
 \subsubsection*{Development \& Automation}
 
 \textbf{Makefile:}
+basic structure:
+target: dependencies
+    command
 \begin{lstlisting}[language=make]
 .PHONY: test lint install
 install:
@@ -195,6 +223,9 @@ lint:
 test:
     pytest tests/
 \end{lstlisting}
+command for make file is: 
+make install
+make lint 
 
 \textbf{Linting \& Testing:}
 \begin{itemize}
@@ -228,11 +259,19 @@ CMD ["python", "app.py"]
 \textbf{Docker Commands:}
 \begin{lstlisting}[language=bash]
 docker build -t image:tag .        # Build image
-docker run -p 5000:5000 image:tag  # Run container
-docker push repo/image:tag         # Push to registry
-docker ps                          # List containers
-docker logs <container-id>         # View logs
+docker run -p 8080:5000 image:tag  # HostPort:ContainerPort
+docker push repo/image:tag         # Push to registry/Hub
+docker ps                          # List active containers
+docker images                      # List all images
 \end{lstlisting}
+
+\textbf{Docker Tips:}
+\begin{itemize}
+    \item \textbf{Layers:} Each command in Dockerfile creates a layer. Re-used layers are \textbf{cached} to speed up builds.
+    \item \textbf{Registry vs Hub:} Docker Hub is a public/private registry. A Registry is the server hosting images (e.g., Azure ACR).
+    \item \textbf{Image vs Container:} Image is a read-only template; Container is a running instance.
+\end{itemize}
+
 
 \textbf{Docker Compose:}
 \begin{lstlisting}[language=yaml]
@@ -273,34 +312,26 @@ docker-compose logs -f      # View logs
 
 \subsubsection*{Jenkins CI/CD}
 
-\textbf{Pipeline Structure:}
+\textbf{Parametrized Pipeline:}
 \begin{lstlisting}[language=groovy]
 pipeline {
     agent any
+    parameters {
+        choice(name: 'PLATFORM', choices: ['Linux', 'Windows', 'MacOS'])
+        string(name: 'VERSION', defaultValue: '1.0', description: 'Tag')
+    }
     stages {
-        stage('Checkout') {
-            steps { checkout scm }
-        }
-        stage('Lint & Test') {
-            steps {
-                sh 'flake8 .'
-                sh 'pytest'
-            }
-        }
         stage('Build') {
             steps {
-                sh 'docker build -t app:${BUILD_NUMBER} .'
+                echo "Building for ${params.PLATFORM} version ${params.VERSION}"
             }
         }
         stage('Push') {
             steps {
                 withCredentials([usernamePassword(...)]) {
-                    sh 'docker push app:${BUILD_NUMBER}'
+                    sh "docker push app:${params.VERSION}"
                 }
             }
-        }
-        stage('Deploy') {
-            steps { sh './deploy.sh' }
         }
     }
 }
@@ -333,18 +364,18 @@ kind: Deployment
 metadata:
   name: my-deployment
 spec:
-  replicas: 3
+  replicas: 3 
   selector:
     matchLabels:
-      app: myapp
+      app: myapp 
   template:
     metadata:
       labels:
-        app: myapp
+        app: myapp # Label assigned to pods
     spec:
       containers:
       - name: app
-        image: myapp:latest
+        image: myapp:latest # Docker image
 \end{lstlisting}
 
 \textbf{Service:}
@@ -355,12 +386,12 @@ metadata:
   name: my-service
 spec:
   selector:
-    app: myapp
+    app: myapp # Route to pods with this label
   ports:
   - protocol: TCP
-    port: 80
-    targetPort: 5000
-  type: LoadBalancer
+    port: 80 # Service port
+    targetPort: 5000 # Pod port
+  type: LoadBalancer # Also: ClusterIP, NodePort
 \end{lstlisting}
 
 \textbf{ConfigMap:}
@@ -415,6 +446,12 @@ kubectl delete pod <name>         # Delete pod
 kubectl scale deployment <name> --replicas=5
 \end{lstlisting}
 
+\textbf{Minikube LoadBalancer Fix:}
+\texttt{LoadBalancer} stays \texttt{<pending>} locally. Use:
+\begin{lstlisting}[language=bash]
+minikube service <service-name> # Expose locally
+\end{lstlisting}
+
 \subsubsection*{MLOps Fundamentals}
 
 \textbf{ML Lifecycle:}
@@ -429,8 +466,14 @@ Data $\rightarrow$ Pre-processing $\rightarrow$ Training $\rightarrow$ Evaluatio
 
 \textbf{DevOps vs MLOps:}
 \begin{itemize}
-    \item DevOps: System monitoring, uptime, performance
-    \item MLOps: Model performance, data drift, concept drift
+    \item DevOps: System uptime, latency, performance
+    \item MLOps: Model drift, retraining, data versioning
+\end{itemize}
+
+\textbf{Troubleshooting DVC:}
+\begin{itemize}
+    \item \textbf{Hash Mismatch:} Happens if you push code/MD5 to Git but forget to \texttt{dvc push} data. \texttt{dvc pull} will fail with hash errors.
+    \item \textbf{Reproducibility:} \texttt{dvc repro} ensures consistency.
 \end{itemize}
 
 \subsubsection*{Data Version Control (DVC)}
@@ -514,6 +557,17 @@ client.transition_model_version_stage(
 )
 \end{lstlisting}
 
+\textbf{MlflowClient (Automation):}
+\begin{lstlisting}[language=python]
+from mlflow.tracking import MlflowClient
+client = MlflowClient()
+# Find best run
+runs = client.search_runs(exp_id, order_by=["metrics.acc DESC"])
+best_run_id = runs[0].info.run_id
+# Cleanup
+client.delete_run(run_id)
+\end{lstlisting}
+
 \textbf{Stages:} None $\rightarrow$ Staging $\rightarrow$ Production $\rightarrow$ Archived
 
 \textbf{MLproject File:}
@@ -539,33 +593,24 @@ mlflow models serve -m models:/MyModel/Production
 \compactsection{Monitoring \& Workflow Management}
 \subsubsection*{Apache Airflow}
 
-\textbf{DAG Structure:}
+\textbf{TaskFlow API (Modern):}
 \begin{lstlisting}[language=python]
-from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.decorators import dag, task
 from datetime import datetime
 
-def task_function():
-    print("Executing task")
+@dag(start_date=datetime(2024, 1, 1), schedule='@daily', catchup=False)
+def my_taskflow_dag():
+    @task
+    def extract():
+        return {"data": 123}
 
-with DAG(
-    'my_dag',
-    start_date=datetime(2024, 1, 1),
-    schedule_interval='@daily',
-    catchup=False
-) as dag:
-    
-    task1 = PythonOperator(
-        task_id='task_1',
-        python_callable=task_function
-    )
-    
-    task2 = PythonOperator(
-        task_id='task_2',
-        python_callable=task_function
-    )
-    
-    task1 >> task2  # Set dependency
+    @task
+    def transform(data):
+        return data["data"] * 2
+
+    transform(extract()) # Dependencies set via call
+
+my_taskflow_dag()
 \end{lstlisting}
 
 \textbf{Key Concepts:}
@@ -594,15 +639,29 @@ airflow tasks test <dag> <task> <date>
     \item PromQL query language
 \end{itemize}
 
-\textbf{prometheus.yml:}
+\textbf{Alertmanager (alertmanager.yml):}
+\begin{lstlisting}[language=yaml]
+route:
+  receiver: 'slack-notifications'
+receivers:
+- name: 'slack-notifications'
+  slack_configs:
+  - api_url: 'https://hooks.slack.com/...'
+    channel: '#alerts'
+\end{lstlisting}
+
+\textbf{Grafana:} 
+Connects to Prometheus. Use \textbf{Dashboards} (JSON) to visualize PromQL results. Set \textbf{Datasource} to \texttt{http://prometheus:9090}.
+
+\textbf{Prometheus Config:}
 \begin{lstlisting}[language=yaml]
 global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'my-app'
+  - job_name: 'my-app' # Scrapes metrics endpoint
     static_configs:
-      - targets: ['localhost:8000']
+      - targets: ['myapp:8000']
 \end{lstlisting}
 
 \textbf{Common Metrics:}
