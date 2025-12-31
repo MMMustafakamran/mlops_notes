@@ -562,12 +562,13 @@ dvc params diff            # Compare parameters
 import mlflow
 
 mlflow.set_tracking_uri("http://localhost:5000")
-mlflow.set_experiment("my-experiment")
 
 with mlflow.start_run():
-    mlflow.log_param("learning_rate", 0.01)
-    mlflow.log_metric("accuracy", 0.95)
-    mlflow.log_artifact("model.pkl")
+    mlflow.log_param("learning_rate", 0.01) #param = passed arguement to train model
+    #train model here e.g model = RandomForestClassifier(..)
+    
+    mlflow.log_metric("accuracy", 0.95)     #metric=output of model
+    mlflow.log_artifact("model.pkl")        #save the model file 
     mlflow.sklearn.log_model(model, "model")
 \end{lstlisting}
 
@@ -576,13 +577,15 @@ with mlflow.start_run():
 mlflow.autolog()  # Automatically logs params, metrics, models
 \end{lstlisting}
 
-\textbf{Model Registry:}
+\textbf{Model Registry(github for models):}
+-register a model or transition its state 
+=4 stage = none , stage(testing) , production(live model), archive
 \begin{lstlisting}[language=python]
 # Register model
 mlflow.register_model("runs:/<run-id>/model", "MyModel")
 
-# Transition model stage
-client = mlflow.tracking.MlflowClient()
+#4 stage = none , stage(testing) , production(live model), archive
+# Transition model stage 
 client.transition_model_version_stage(
     name="MyModel",
     version=1,
@@ -590,24 +593,22 @@ client.transition_model_version_stage(
 )
 \end{lstlisting}
 
-\textbf{MlflowClient (Automation):}
-\begin{lstlisting}[language=python]
-from mlflow.tracking import MlflowClient
-client = MlflowClient()
-# Find best run
-runs = client.search_runs(exp_id, order_by=["metrics.acc DESC"])
-best_run_id = runs[0].info.run_id
-# Cleanup
-client.delete_run(run_id)
+\textbf{MLproject :}
+way to package ml code into a standard format to run anywhere. project structure:
+\begin{lstlisting}[language=yaml]
+my_project/
+├── MLproject       # Metadata file describing the project
+├── conda.yaml      # Conda environment (optional)
+├── train.py      
+├── preprocess.py   
+└── README.md
 \end{lstlisting}
-
-\textbf{Stages:} None $\rightarrow$ Staging $\rightarrow$ Production $\rightarrow$ Archived
-
-\textbf{MLproject File:}
+Mlproject File: contains
+-name , environment , entrypoints(scripts torun)
 \begin{lstlisting}[language=yaml]
 name: My Project
 conda_env: conda.yaml
-entry_points:
+entry_points:     
   main:
     parameters:
       learning_rate: {type: float, default: 0.01}
@@ -617,7 +618,7 @@ entry_points:
 \textbf{Commands:}
 \begin{lstlisting}[language=bash]
 mlflow ui                          # Start UI server
-mlflow run . -P learning_rate=0.01 # Run project
+mlflow run . -P learning_rate=0.01  # Run project
 mlflow models serve -m models:/MyModel/Production
 \end{lstlisting}
 
